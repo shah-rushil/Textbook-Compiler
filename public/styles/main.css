@@ -1,0 +1,101 @@
+.title{
+    padding-top: 10vh;
+    padding-bottom: 2vh;
+    font-size: 24px;
+    text-align: center;
+}
+
+.filter{
+    margin: 2vw;
+    display: flex;
+    justify-content: center;
+}
+
+.filter-form{
+    padding:0;
+}
+
+.textbook-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2vw;
+    margin: 1vw;
+    justify-content: center;
+}
+
+.textbook-cell {
+    width: 16vw;
+    height: 25vw;
+    margin-bottom: 10px;
+}
+
+.textbook-pic{
+    width:100%;
+    height: 20vw;
+}
+
+.textbook-title{
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.textbook-author{
+    font-size: 12px;
+}
+
+.rating{
+    display: inline-block;
+    font-size: 12px;
+}
+
+.star, .filled-star{
+    display: inline-flex;
+    font-size:24px;
+    position: relative;
+}
+
+.star::before{
+    content: '\2606';
+    color: gold;
+}
+
+.filled-star::before{
+    content: '\2605';
+    color: gold;
+}
+
+.button-container {
+    position: relative;
+    width: 16vw;
+    height: 25vw;
+    background-color: lightgray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+.plus-button {
+    width: 5vw;
+    height: 5vw;
+    border-radius: 50%;
+    background-color: gray;
+    border: none;
+    color: white;
+    font-size: 4vw;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+  }
+
+  .plus-button:hover {
+    transform: scale(1.1);
+    transition: all 0.2s ease;
+  }
+
+  .button-link {
+    text-decoration: none;
+  }

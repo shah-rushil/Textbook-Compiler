@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles/add.css" />
+  <title>Add Textbook</title>
+</head>
+
+<body>
+   <main>
+    <div class="add-form">
+      <form action="/addtextbook" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" autofocus required><br><br>
+    
+        <label for="author">Author(s):</label>
+        <input type="text" id="author" name="author" required><br><br>
+    
+        <label for="isbn">ISBN:</label>
+        <input type="text" id="isbn" name="isbn" required><br><br>
+
+        <label for="rating">Rating (/5):</label>
+        <input type="text" id="rating" name="rating" required><br><br>
+
+        <label for="category"> Subject: </label>
+          <select id="category" name="category">
+            <option value="Any">Any</option>
+            <option value="Physics">Physics</option>
+            <option value="Biology">Biology</option>
+            <option value="Chemistry">Chemistry</option>
+          </select>
+
+        <br><br>
+
+        <label for="level"> Difficulty Level: </label>
+          <select id="level" name="level">
+            <option value="Introductory">Introductory</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+        
+        <br><br>
+
+        <label for="summary">Summary:</label><br>
+        <textarea id="summary" name="summary" rows="4" cols="50" required></textarea><br><br>
+    
+        <input type="submit" value="Submit">
+      </form>
+    </div>
+   </main>
+
+   <footer>Copyright © <%= new Date().getFullYear() %>
+</footer>
+
+</body>
+
+</html>

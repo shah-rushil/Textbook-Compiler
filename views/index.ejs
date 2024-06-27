@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="styles/main.css" />
+  <title>Textbook Compiler</title>
+</head>
+
+<body>
+  <main>
+    <div class="title">
+        The Textbook Collector
+    </div>
+    <!-- Form to filter textbooks and sort them by rating/name -->
+    <div class="filter">
+      <div class="filter-form">
+        <form action="/filter" method="POST">
+          Filter:
+          <label for="category"> Subject: </label>
+          <select id="category" name="category">
+            <option value="Any">Any</option>
+            <option value="Physics">Physics</option>
+            <option value="Biology">Biology</option>
+            <option value="Chemistry">Chemistry</option>
+          </select>
+          <label for="level">, Difficulty: </label>
+          <select id="level" name="level">
+            <option value="Any">Any</option>
+            <option value="Introductory">Introductory</option>
+            <option value="Advanced">Advanced</option>
+          </select>
+          <label for="sort">. Sort by: </label>
+          <select id="sort" name="sort">
+            <option value="name">Name</option>
+            <option value="rating">Rating</option>
+          </select>
+          <select id="order" name="order">
+            <option value="ASC">Ascending</option>
+            <option value="DESC">Descending</option>
+          </select>
+          <input type="submit" value="Filter">
+        </form>
+      </div>
+    </div>
+    <!-- List all of the textbooks -->
+    <div class="textbook-container">
+      <!-- Iterate through textbooks and add div element for each textbook -->
+      <% for(let i = 0; i < textbooks.length; i++) {
+        let textbook = textbooks[i]; %>
+        <div class="textbook-cell">
+          <% const imageURL = `https://covers.openlibrary.org/b/isbn/${textbook.isbn}-M.jpg`%>
+          <img src="<%=imageURL%>" class="textbook-pic">
+          <div class="textbook-title">
+            <%=textbook.name%>
+          </div>
+          <div class="textbook-author">
+            by <%=textbook.author%>
+          </div>
+          <% const rating = textbook.rating;%>
+          <div class="rating">
+            <% for(let j = 1; j < 6; j++){ %>
+              <% if(j <= Math.floor(rating)) {%>
+                <span class="filled-star"></span>
+              <% } else {%>
+                <span class="star"></span>
+              <% } %>
+            <% } %>
+            <%=rating.toFixed(1)%>/5.0 (<%=textbook.numratings%>)
+          </div>
+        </div>
+      <% } %>
+      <!-- Add Button Element -->
+      <div class="button-container">
+        <a href="add" class="button-link"> <button class="plus-button">+</button></a>
+      </div>
+    </div>
+  </main>
+  <footer>Copyright © <%= new Date().getFullYear() %>
+  </footer>
+</body>
+  
+</html>
