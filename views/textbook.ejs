@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/textbook.css" />
+  <title><%=textbook.name%></title>
+</head>
+
+<body>
+    <main>
+        <a href="/back"><button>Back</button></a>
+        <div class="textbook-container">
+            <div class="textbook-pic">
+                <% const imageURL = `https://covers.openlibrary.org/b/isbn/${textbook.isbn}-L.jpg`%>
+                <img src="<%=imageURL%>" class="textbook-image">
+            </div>
+            <div class="textbook-info">
+                <h1 class="textbook-name"><%=textbook.name%></h1>
+                <h3 class="textbook-author"> by <%=textbook.author%> </h3>
+                <% const rating = textbook.rating;%>
+                <div class="rating">
+                    <% for(let j = 1; j < 6; j++){ %>
+                    <% if(j <= Math.floor(rating)) {%>
+                        <span class="filled-star"></span>
+                    <% } else {%>
+                        <span class="star"></span>
+                    <% } %>
+                    <% } %>
+                    <span class="rating-text"><%=rating.toFixed(1)%>/5.0 (<%=textbook.numratings%>)</span>
+                </div>
+                <p><%=textbook.summary%></p>
+                <% const bookURL = `https://openlibrary.org/isbn/${textbook.isbn}`%>
+                <p>Find more information about cost and availability at <a href="<%=bookURL%>" target="_blank">Open Library</a>.</p>
+            </div>   
+        </div>
+    </main>
+</body>
+
+</html>

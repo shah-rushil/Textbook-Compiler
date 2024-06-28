@@ -27,6 +27,11 @@
     width: 16vw;
     height: 25vw;
     margin-bottom: 10px;
+    transition: all 0.2s ease;
+}
+
+.textbook-cell:hover{
+    transform: scale(1.05);
 }
 
 .textbook-pic{
@@ -42,6 +47,7 @@
 
 .textbook-author{
     font-size: 12px;
+    text-align: center;
 }
 
 .rating{
@@ -97,5 +103,9 @@
   }
 
   .button-link {
+    text-decoration: none;
+  }
+
+  .book-link{
     text-decoration: none;
   }

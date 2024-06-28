@@ -1,0 +1,3 @@
+Hello! This is an organizer for textbooks commonly seen in olympiad competitions. Currently, it only works locally, but support to work remotely with interactive rating recommendations is being implemented.
+
+To use locally, download NodeJS and an IDE (ideally VSCode). Also download pgAdmin and create a database/table using the commands in queries.sql. In the VSCode terminal, open up the folder where the project is cloned and run the command "npm i". This will download all the necessary node modules needed for the code to work. Then, run the command "node index.js". Open up localhost:3000 on your browser, and the website is for you to use!

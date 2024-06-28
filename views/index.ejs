@@ -6,13 +6,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="styles/main.css" />
-  <title>Textbook Compiler</title>
+  <title>Olympiad Compiler</title>
 </head>
 
 <body>
   <main>
     <div class="title">
-        The Textbook Collector
+        The Olympiad Textbook Organizer (TOTO)
     </div>
     <!-- Form to filter textbooks and sort them by rating/name -->
     <div class="filter">
@@ -49,7 +49,9 @@
     <div class="textbook-container">
       <!-- Iterate through textbooks and add div element for each textbook -->
       <% for(let i = 0; i < textbooks.length; i++) {
-        let textbook = textbooks[i]; %>
+      let textbook = textbooks[i]; 
+      const link = `books/${textbook.name} by ${textbook.author}`%>
+      <a href="<%=link%>" class="book-link">
         <div class="textbook-cell">
           <% const imageURL = `https://covers.openlibrary.org/b/isbn/${textbook.isbn}-M.jpg`%>
           <img src="<%=imageURL%>" class="textbook-pic">
@@ -71,6 +73,7 @@
             <%=rating.toFixed(1)%>/5.0 (<%=textbook.numratings%>)
           </div>
         </div>
+      </a>
       <% } %>
       <!-- Add Button Element -->
       <div class="button-container">
@@ -78,8 +81,6 @@
       </div>
     </div>
   </main>
-  <footer>Copyright © <%= new Date().getFullYear() %>
-  </footer>
 </body>
   
 </html>

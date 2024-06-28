@@ -42,7 +42,6 @@ app.get("/", async (req, res) => {
                 query = `SELECT * FROM textbooks WHERE category='${category}' AND level='${level}' ORDER BY ${sort} ${order};`;
             }      
         }
-        console.log(query);
         textbooks = await db.query(query);
         res.render("index.ejs", {textbooks: textbooks.rows});
     } catch(error){
@@ -52,7 +51,19 @@ app.get("/", async (req, res) => {
 
 app.get("/add", (req, res) => {
     res.render("add.ejs");
-})
+});
+
+app.get("/books/:bookName", async (req, res) => {
+    const name_and_author = req.params.bookName.split(' by ');
+    const bookName = name_and_author[0];
+    const author = name_and_author[1];
+    const textbook = await db.query('SELECT * FROM textbooks WHERE name=$1 AND author=$2', [bookName, author]);
+    res.render("textbook.ejs", {textbook: textbook.rows[0]});
+});
+
+app.get("/back", (req, res) => {
+   res.redirect("/"); 
+});
 
 app.post("/filter", (req, res) => {
     category = req.body.category;
