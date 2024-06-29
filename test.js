@@ -1,0 +1,18 @@
+import bodyParser from "body-parser";
+import express from "express";
+
+const port = 3000;
+const app = express();
+
+db.connect();
+
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.static("public"));
+
+app.get("/", async (req, res) => {
+    
+});
+
+app.listen(port, () => {
+    console.log(`Server listening on port ${port}`);
+});

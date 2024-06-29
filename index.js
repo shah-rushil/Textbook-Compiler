@@ -8,8 +8,8 @@ const db = new pg.Client({
   user: "postgres",
   host: "localhost",
   database: "Textbook",
-  password: "123456", // Enter PostgreSQL password here
-  port: 5432
+  password: "rushSQL@1531", // Enter PostgreSQL password here
+  port: 123456
 });
 
 let category = "Any";
