@@ -4,8 +4,6 @@ import express from "express";
 const port = 3000;
 const app = express();
 
-db.connect();
-
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
