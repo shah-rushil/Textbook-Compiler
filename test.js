@@ -8,7 +8,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 app.get("/", async (req, res) => {
-    
+    res.render("test.ejs");
 });
 
 app.listen(port, () => {
