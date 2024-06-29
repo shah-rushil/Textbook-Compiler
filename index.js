@@ -6,10 +6,10 @@ const port = 3000;
 const app = express();
 const db = new pg.Client({
   user: "postgres",
-  host: "localhost",
-  database: "Textbook",
-  password: "rushSQL@1531", // Enter PostgreSQL password here
-  port: 123456
+  host: "textbook.cbu0ymaq4sq0.us-east-1.rds.amazonaws.com",
+  database: "textbook", // Textbook for local
+  password: "rushSQL1531", // Enter PostgreSQL password here
+  port: 5432
 });
 
 let category = "Any";
