@@ -5,45 +5,47 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="styles/main.css" />
+  <link rel="stylesheet" href="/styles/main.css" />
+  <link rel="stylesheet" href="/styles/header.css" />
   <title>Olympiad Compiler</title>
 </head>
 
 <body>
-  <main>
+
+  <%- include("partials/header.ejs")%>
+
+  <main class="main-content">
     <div class="title">
         The Olympiad Textbook Organizer (TOTO)
     </div>
     <!-- Form to filter textbooks and sort them by rating/name -->
     <div class="filter">
-      <div class="filter-form">
-        <form action="/filter" method="POST">
-          Filter:
-          <label for="category"> Subject: </label>
-          <select id="category" name="category">
-            <option value="Any">Any</option>
-            <option value="Physics">Physics</option>
-            <option value="Biology">Biology</option>
-            <option value="Chemistry">Chemistry</option>
-          </select>
-          <label for="level">, Difficulty: </label>
-          <select id="level" name="level">
-            <option value="Any">Any</option>
-            <option value="Introductory">Introductory</option>
-            <option value="Advanced">Advanced</option>
-          </select>
-          <label for="sort">. Sort by: </label>
-          <select id="sort" name="sort">
-            <option value="name">Name</option>
-            <option value="rating">Rating</option>
-          </select>
-          <select id="order" name="order">
-            <option value="ASC">Ascending</option>
-            <option value="DESC">Descending</option>
-          </select>
-          <input type="submit" value="Filter">
-        </form>
-      </div>
+      <form action="/filter" method="POST" class="filter-form">
+        <img src="assets/filter_image.png" class="filter-img">
+        <select id="category" name="category" class="filter-element">
+          <option value="" disabled selected hidden>Category</option>
+          <option value="Any">Any</option>
+          <option value="Physics">Physics</option>
+          <option value="Biology">Biology</option>
+          <option value="Chemistry">Chemistry</option>
+        </select>
+        <select id="level" name="level" class="filter-element">
+          <option value="" disabled selected hidden>Difficulty</option>
+          <option value="Any">Any</option>
+          <option value="Introductory">Introductory</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+        <img src="assets/sorting_image.png" class="sorting-img">
+        <select id="sort" name="sort" class="filter-element">
+          <option value="name">Name</option>
+          <option value="rating">Rating</option>
+        </select>
+        <select id="order" name="order" class="filter-element">
+          <option value="ASC">Ascending</option>
+          <option value="DESC">Descending</option>
+        </select>
+        <input type="submit" value="Filter" class="submit-element">
+      </form>
     </div>
     <!-- List all of the textbooks -->
     <div class="textbook-container">
@@ -76,9 +78,11 @@
       </a>
       <% } %>
       <!-- Add Button Element -->
+      <% if(locals.username) { %>
       <div class="button-container">
         <a href="add" class="button-link"> <button class="plus-button">+</button></a>
       </div>
+      <% } %>
     </div>
   </main>
 </body>

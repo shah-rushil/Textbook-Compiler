@@ -5,13 +5,16 @@
   <meta charset="UTF-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/header.css" />
   <link rel="stylesheet" href="/styles/textbook.css" />
   <title><%=textbook.name%></title>
 </head>
 
 <body>
-    <main>
-        <a href="/back"><button>Back</button></a>
+
+    <%- include("partials/header.ejs")%>
+
+    <main class="main-content">
         <div class="textbook-container">
             <div class="textbook-pic">
                 <% const imageURL = `https://covers.openlibrary.org/b/isbn/${textbook.isbn}-L.jpg`%>
@@ -31,11 +34,24 @@
                     <% } %>
                     <span class="rating-text"><%=rating.toFixed(1)%>/5.0 (<%=textbook.numratings%>)</span>
                 </div>
+                <span style="display: block; margin-bottom: 20px;"></span>
                 <p><%=textbook.summary%></p>
+                <span style="display: block; margin-bottom: 20px;"></span>
                 <% const bookURL = `https://openlibrary.org/isbn/${textbook.isbn}`%>
                 <p>Find more information about cost and availability at <a href="<%=bookURL%>" target="_blank">Open Library</a>.</p>
             </div>   
         </div>
+        <% if(locals.username) {%>
+        <div class="rating-section">
+            <form action="/rating" method="POST" class="rating-form">
+                <label for="summary" class="rating-add-title">Add a rating!</label>
+                <input type="text" name="stars" class="rating-element" placeholder="Rating eg.(4/5)" required>
+                <textarea id="summary" name="rating" rows="1" cols="30" class="rating-element" placeholder="This book was amazing..." required></textarea>
+                <input type="submit" value="Submit" class="submit-element">
+            </form>
+        </div>
+        <% } %>
+        
     </main>
 </body>
 

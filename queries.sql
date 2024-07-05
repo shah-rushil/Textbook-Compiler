@@ -13,3 +13,18 @@ CREATE TABLE textbooks(
 
 INSERT INTO textbooks (name, author, isbn, rating, numratings, category, level, summary)
 VALUES ('Electricity and Magnetism', 'Edward Purcell and David Morin', '9781107014022', 5, 1, 'Physics', 'Advanced', 'Sample summary');
+
+CREATE TABLE users(
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE,
+    password TEXT,
+    email VARCHAR(100) UNIQUE
+);
+
+CREATE TABLE ratings(
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100),
+    textbookid VARCHAR(100),
+    stars INTEGER,
+    rating TEXT
+);
