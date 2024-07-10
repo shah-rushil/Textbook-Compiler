@@ -6,6 +6,9 @@ import session from "express-session";
 import passport from "passport";
 import {Strategy} from "passport-local";
 import env from "dotenv";
+import axios from "axios";
+import https from "https";
+import fs from "fs";
 
 const port = 3000;
 const app = express();
@@ -15,7 +18,7 @@ env.config();
 const db = new pg.Client({
   user: "postgres",
   host: process.env.DATABASE_HOST, // Enter EC2 end link Encrypt
-  database: "Textbook", // Textbook for local
+  database: process.env.DATABASE_NAME, // Textbook for local
   password: process.env.DATABASE_PASSWORD, // Encrypt
   port: 5432
 });
@@ -80,12 +83,26 @@ app.get("/books/:bookName", async (req, res) => {
     const bookName = name_and_author[0];
     const author = name_and_author[1];
     const textbook = await db.query('SELECT * FROM textbooks WHERE name=$1 AND author=$2', [bookName, author]);
+    let ratings;
+    if(name_and_author.length == 3){
+        const order = name_and_author[2];
+        const query = `SELECT * FROM ratings WHERE textbookid=${textbook.rows[0].id} ORDER BY stars ${order}`;
+        console.log(query);
+        ratings = await db.query(query);
+    }
+    else{
+        ratings = await db.query('SELECT * FROM ratings WHERE textbookid=$1', [textbook.rows[0].id]);
+    }
     if(req.isAuthenticated()){
         const username = req.user.username;
-        const ratings = await db.query('SELECT * FROM ratings WHERE username=$1 AND textbookid=$2', [username, textbook.rows[0].id]);
-        res.render("textbook.ejs", {textbook: textbook.rows[0], username: username, ratings: ratings.rows});
+        const book_rating = await db.query('SELECT * FROM ratings WHERE username=$1 AND textbookid=$2', [username, textbook.rows[0].id]);
+        let submitted = false;
+        if(book_rating.rows.length > 0){
+            submitted = true;
+        }
+        res.render("textbook.ejs", {textbook: textbook.rows[0], username: username, ratings: ratings.rows, submitted: submitted});
     } else {
-        res.render("textbook.ejs", {textbook: textbook.rows[0]});
+        res.render("textbook.ejs", {textbook: textbook.rows[0], ratings: ratings.rows});
     }
 });
 
@@ -109,7 +126,27 @@ app.get("/signout", (req, res) => {
 
 app.get("/createaccount", (req, res) => {
     res.render("createaccount.ejs");
-})
+});
+
+app.get("/contact", (req, res) => {
+    if(req.isAuthenticated()){
+        res.render("contact.ejs", {username: req.user.username});
+    }else{
+        res.render("contact.ejs");
+    }
+});
+
+app.get("/edit/:textbookid", (req, res) => {
+    if(!req.isAuthenticated()){
+        console.log("hi");
+        res.redirect("/");
+    }
+    else{
+        res.render("edit.ejs", {textbookid: req.params.textbookid, username: req.user.username});
+    }
+});
+
+// POST Requests!
 
 app.post("/filter", (req, res) => {
     category = req.body.category;
@@ -138,11 +175,22 @@ app.post("/addtextbook", async (req, res) => {
 
 app.post("/rating", async (req, res) => {
     let username = req.user.username;
-    let textbookid = req.user.username;
-    let stars = req.body.level;
-    let rating = req.body.summary;
+    const textbook = JSON.parse(req.body.textbook);
+    let textbookid = textbook.id;
+    let stars;
+    try{
+        stars = parseInt(req.body.stars);
+    } catch (error){
+        res.send("Please enter an integer (eg. 4) for the rating!");
+    }
+    let rating = req.body.rating;
+    
     await db.query("INSERT INTO ratings (username, textbookid, stars, rating) VALUES ($1, $2, $3, $4);", [username, textbookid, stars, rating]);
-    res.redirect("/");
+    const url =  `/books/${textbook.name} by ${textbook.author}`;
+    const new_rating = textbook.numratings+1;
+    const new_stars = (textbook.rating*textbook.numratings+stars)/new_rating;
+    await db.query("UPDATE textbooks SET numratings = $1, rating = $2 WHERE id = $3", [new_rating, new_stars, textbookid]);
+    res.redirect(url);
 });
 
 app.post("/signin", passport.authenticate("local", {
@@ -185,6 +233,38 @@ app.post("/createaccount", async (req, res) => {
     }
 });
 
+app.post("/filterrating", (req, res) => {
+    const textbook = JSON.parse(req.body.textbook);
+    const order = req.body.order;
+    const url =  `/books/${textbook.name} by ${textbook.author} by ${order}`;
+    res.redirect(url);
+});
+
+app.post("/editreview", async (req, res) => {
+    if(!req.isAuthenticated()){
+        res.redirect("/");
+    }
+    else{
+        const textbookid = parseInt(req.body.textbookid);
+        let stars;
+        try{
+            stars = parseInt(req.body.stars);
+        } catch(err){
+            res.send("Please submit an integer for the rating!");
+        }
+        const message = req.body.message;
+        const user = req.user.username;
+        let prev_stars = await db.query("SELECT stars FROM ratings WHERE username=$1 AND textbookid=$2", [user, textbookid]);
+        prev_stars = parseInt(prev_stars.rows[0].stars);
+        await db.query("UPDATE ratings SET stars=$1, rating=$2 WHERE username=$3 AND textbookid=$4", [stars, message, user, textbookid]);
+        const result = await db.query("SELECT * FROM textbooks WHERE id=$1", [textbookid]);
+        const new_rating = (result.rows[0].rating*result.rows[0].numratings-prev_stars+stars)/result.rows[0].numratings;
+        await db.query("UPDATE textbooks SET rating=$1 WHERE id=$2", [new_rating, textbookid]);
+        const url = `/books/${result.rows[0].name} by ${result.rows[0].author}`;
+        res.redirect(url);
+    } 
+});
+
 passport.use(new Strategy(async function verify(username, password, cb) {
     try{
         const checkResult = await db.query("SELECT * FROM users WHERE username = $1", [username]);
@@ -222,6 +302,13 @@ passport.deserializeUser((user, cb) => {
     cb(null, user);
 });
 
-app.listen(port, () => {
-    console.log(`Server listening on port ${port}`);
+const options = {
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.crt')
+};
+
+const server = https.createServer(options, app);
+
+server.listen(port, () => {
+    console.log('HTTPS server running on port 3000');
 });

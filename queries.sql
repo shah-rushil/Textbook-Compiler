@@ -24,7 +24,7 @@ CREATE TABLE users(
 CREATE TABLE ratings(
     id SERIAL PRIMARY KEY,
     username VARCHAR(100),
-    textbookid VARCHAR(100),
+    textbookid INTEGER,
     stars INTEGER,
     rating TEXT
 );

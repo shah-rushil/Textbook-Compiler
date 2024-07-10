@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/styles/header.css" />
+  <link rel="stylesheet" href="/styles/contact.css" />
+  <title>Edit Rating</title>
+</head>
+
+<body>
+
+    <%- include("partials/header.ejs")%>
+    <main class="main-content">
+        <div class="login-page">
+            <div class="form">
+              <form class="login-form" method="POST" action="/editreview">
+                <input type="text" placeholder="new rating (eg. 4)" name="stars" class="form-input"/>
+                <textarea placeholder="new review" name="message" class="form-input"></textarea>
+                <input type="hidden" name="textbookid" value="<%=textbookid%>">
+                <input type="submit" value="Submit" class="form-submit">
+              </form>
+            </div>
+        </div>
+    </main>
+
+</body>
+
+</html>
