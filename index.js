@@ -9,24 +9,29 @@ import env from "dotenv";
 import axios from "axios";
 import https from "https";
 import fs from "fs";
+import nodemailer from "nodemailer";
+import jwt from "jsonwebtoken"
 
 const port = 3000;
 const app = express();
-const saltRounds = 5; // Encrypt
 env.config();
+const saltRounds = process.env.SALT_ROUNDS;
 
 const db = new pg.Client({
   user: "postgres",
   host: process.env.DATABASE_HOST, // Enter EC2 end link Encrypt
-  database: process.env.DATABASE_NAME, // Textbook for local
-  password: process.env.DATABASE_PASSWORD, // Encrypt
+  database: process.env.DATABASE_NAME,
+  password: process.env.DATABASE_PASSWORD,
   port: 5432
 });
 
-let category = "Any";
-let sort = 'rating';
-let order = 'DESC';
-let level = "Any";
+let transporter = nodemailer.createTransport({
+    service: 'Gmail', // You can use any other service, e.g., Yahoo, Outlook
+    auth: {
+      user: process.env.EMAIL, // Your email address
+      pass: process.env.APP_PASSWORD   // Your email password
+    }
+  });
 
 db.connect();
 
@@ -44,6 +49,7 @@ app.use(passport.session());
 app.get("/", async (req, res) => {
     let textbooks;
     let query;
+    const { category = 'Any', level = 'Any', sort = 'id', order = 'ASC' } = req.query;
     try{
         if(category == "Any"){
             if(level == "Any"){
@@ -87,7 +93,6 @@ app.get("/books/:bookName", async (req, res) => {
     if(name_and_author.length == 3){
         const order = name_and_author[2];
         const query = `SELECT * FROM ratings WHERE textbookid=${textbook.rows[0].id} ORDER BY stars ${order}`;
-        console.log(query);
         ratings = await db.query(query);
     }
     else{
@@ -146,14 +151,30 @@ app.get("/edit/:textbookid", (req, res) => {
     }
 });
 
+app.get("/forgotpassword", (req, res) => {
+    res.render("forgotpassword.ejs");
+});
+
+app.get('/reset-password', (req, res) => {
+    const token = req.query.token;
+    console.log(token);
+    try {
+        const decoded = jwt.verify(token, process.env.SESSION_SECRET);
+        const userEmail = decoded.email;
+        res.render("resetpassword.ejs", {userEmail: userEmail});
+    } catch (error) {
+        res.status(400).send('Invalid or expired token');
+    }
+});
+
 // POST Requests!
 
 app.post("/filter", (req, res) => {
-    category = req.body.category;
-    level = req.body.level;
-    sort = req.body.sort;
-    order = req.body.order;
-    res.redirect("/");
+    const category = req.body.category || 'Any';
+    const level = req.body.level || 'Any';
+    const sort = req.body.sort || 'rating';
+    const order = req.body.order || 'ASC';
+    res.redirect(`/?category=${encodeURIComponent(category)}&level=${encodeURIComponent(level)}&sort=${encodeURIComponent(sort)}&order=${encodeURIComponent(order)}`);
 });
 
 app.post("/addtextbook", async (req, res) => {
@@ -166,10 +187,13 @@ app.post("/addtextbook", async (req, res) => {
     } catch (error){
         console.log("Please enter an integer (eg. 4) for the rating!");
     }
+    let rating_description = req.body.rating_description;
     let category = req.body.category;
     let level = req.body.level;
     let summary = req.body.summary;
-    await db.query("INSERT INTO textbooks (name, author, isbn, rating, numratings, category, level, summary) VALUES ($1, $2, $3, $4, 1, $5, $6, $7);", [name, author, isbn, rating, category, level, summary]);
+    let username = req.user.username;
+    let id = await db.query("INSERT INTO textbooks (name, author, isbn, rating, numratings, category, level, summary) VALUES ($1, $2, $3, $4, 1, $5, $6, $7) RETURNING id;", [name, author, isbn, rating, category, level, summary]);
+    await db.query("INSERT INTO ratings (username, textbookid, stars, rating) VALUES ($1, $2, $3, $4)", [username, id.rows[0].id, rating, rating_description]);
     res.redirect("/");
 })
 
@@ -265,6 +289,61 @@ app.post("/editreview", async (req, res) => {
     } 
 });
 
+app.post("/deleterating", async (req, res) => {
+    const rating = JSON.parse(req.body.rating);
+    const textbookid = parseInt(rating.textbookid);
+    const stars = parseInt(rating.stars);
+    let textbook = await db.query("SELECT * FROM textbooks WHERE id=$1", [textbookid]);
+    const new_rating = (textbook.rows[0].rating*textbook.rows[0].numratings-stars)/(textbook.rows[0].numratings-1);
+    await db.query("UPDATE textbooks SET rating=$1, numratings=$2 WHERE id=$3", [new_rating, textbook.rows[0].numratings-1, textbookid]);
+    await db.query("DELETE FROM ratings WHERE id=$1", [rating.id]);
+    const url = `/books/${textbook.rows[0].name} by ${textbook.rows[0].author}`;
+    res.redirect(url);
+});
+
+app.post("/validateuser", (req, res) => {
+    const email = req.body.email;
+    const token = jwt.sign({ email: email }, process.env.SESSION_SECRET, { expiresIn: '1h' });
+    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+    let mailOptions = {
+        from: `"TOTO" <${process.env.EMAIL}>`,
+        to: email,
+        subject: 'Password Reset',
+        text: `Click on the following link to reset your password: ${resetLink}`,
+        html: `<p>Click on the following link to reset your password:</p><a href="${resetLink}">${resetLink}</a>. <p>If you did not choose to 
+        reset your password, please ignore this email.<p>`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          return console.log('Error:', error);
+        }
+        console.log('Message sent: %s', info.messageId);
+        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    });
+
+    res.send("Please check your email for a reset link!");
+});
+
+app.post("/reset-password", async (req, res) => {
+    const userEmail = req.body.email;
+    const newPassword = req.body.password;
+    bcrypt.hash(newPassword, saltRounds, async (err, hash) => {
+        if(err){
+            console.log(err);
+        }
+        else{
+            console.log(userEmail);
+            const result = await db.query("UPDATE users SET password=$1 WHERE email=$2 RETURNING *;", [hash, userEmail]);
+            const user = result.rows[0];
+            req.login(user, (err) => {
+                console.log(err);
+                res.redirect("/");
+            })
+        }
+    });
+});
+
 passport.use(new Strategy(async function verify(username, password, cb) {
     try{
         const checkResult = await db.query("SELECT * FROM users WHERE username = $1", [username]);
@@ -302,13 +381,6 @@ passport.deserializeUser((user, cb) => {
     cb(null, user);
 });
 
-const options = {
-    key: fs.readFileSync('server.key'),
-    cert: fs.readFileSync('server.crt')
-};
-
-const server = https.createServer(options, app);
-
-server.listen(port, () => {
-    console.log('HTTPS server running on port 3000');
+app.listen(port, () => {
+    console.log('HTTP server running on port 3000');
 });

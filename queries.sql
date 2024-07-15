@@ -3,7 +3,7 @@ CREATE TABLE textbooks(
     name VARCHAR(100),
     author VARCHAR(100),
     isbn VARCHAR(50),
-    rating INTEGER,
+    rating FLOAT,
     numratings INTEGER,
     category VARCHAR(100),
     level VARCHAR(100),

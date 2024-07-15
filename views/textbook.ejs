@@ -98,7 +98,15 @@
                 <%if(locals.username && curr_rating.username === username) {%>
                     <div class="edit-rating">
                         <%const url = `/edit/${textbook.id}`;%>
-                        <a href="<%=url%>" class="edit-link">✎</a>
+                        <a href="<%=url%>" class="edit-link">&#x270E</a>
+                        <div class="delete-rating">
+                            <form action="/deleterating" method="POST">
+                                <input type="hidden" name="rating" value="<%= JSON.stringify(curr_rating) %>">
+                                <button type="submit" class="delete-button">
+                                    <span class="trash-icon">&#x1F5D1</span>
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 <%}%>
             </div>    

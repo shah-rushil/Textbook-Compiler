@@ -123,7 +123,7 @@
     padding-left: 3vw;
     padding-top: 20px;
     padding-bottom: 20px;
-    width: 95%;
+    width: 93%;
 }
 
 .edit-rating{
@@ -216,11 +216,33 @@
     display: flex;
 }
 
+.edit-rating{
+    display: inline flex;
+}
+
 .edit-link{
     text-decoration: none;
     color:black;
 }
 
 .edit-link:hover{
+    text-decoration: underline;
+}
+
+.delete-button {
+    font-size: 16px;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding-left: 14px;
+}
+
+.trash-icon {
+    background-color: none;
+    margin: auto;
+}
+
+.trash-icon:hover{
     text-decoration: underline;
 }
