@@ -69,7 +69,8 @@ ul {
 
 .main-content{
     padding-top: 60px;
-    background-color: rgb(206, 197, 187);
+	flex: 1;
+	background-color: rgb(206, 197, 187);
 }
 
 @media (min-width: 769px) {
@@ -95,7 +96,4 @@ ul {
 		justify-content: space-between;
 	}
 
-}
-body{
-	background-color: rgb(206, 197, 187);
 }

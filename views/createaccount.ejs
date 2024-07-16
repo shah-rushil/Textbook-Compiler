@@ -18,9 +18,9 @@
         <div class="login-page">
             <div class="form">
               <form class="login-form" method="POST" action="/createaccount">
-                <input type="text" placeholder="email address" name="email" class="form-input"/>
-                <input type="text" placeholder="username" name="username" class="form-input"/>
-                <input type="password" placeholder="password" name="password" class="form-input"/>
+                <input type="email" placeholder="email address" name="email" class="form-input" required/>
+                <input type="text" placeholder="username" name="username" class="form-input" required/>
+                <input type="password" placeholder="password" name="password" class="form-input" required/>
                 <input type="submit" value="create" class="form-submit">
                 <p class="message">Already registered? <a href="signin">Sign In</a></p>
               </form>

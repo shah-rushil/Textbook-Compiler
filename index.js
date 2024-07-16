@@ -226,34 +226,39 @@ app.post("/createaccount", async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
     const email = req.body.email;
-
-    try{
-        const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-        const checkResult2 = await db.query("SELECT * FROM users WHERE username = $1", [username]);
-        if(checkResult.rows.length > 0){
-            res.send("Email already exists. Try logging in.");
-        }
-        else if(checkResult2.rows.length > 0){
-            res.send("Username already exists. Try a new username.");
-        }
-        else{
-            // Encrypt Password
-            bcrypt.hash(password, saltRounds, async (err, hash) => {
-                if(err){
-                    console.log(err);
-                }
-                else{
-                    const result = await db.query("INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *", [username, hash, email]);
-                    const user = result.rows[0];
-                    req.login(user, (err) => {
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if(!emailPattern.test(email)){
+        res.send("Please enter a valid email address!");
+    }
+    else{
+        try{
+            const checkResult = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+            const checkResult2 = await db.query("SELECT * FROM users WHERE username = $1", [username]);
+            if(checkResult.rows.length > 0){
+                res.send("Email already exists. Try logging in.");
+            }
+            else if(checkResult2.rows.length > 0){
+                res.send("Username already exists. Try a new username.");
+            }
+            else{
+                // Encrypt Password
+                bcrypt.hash(password, saltRounds, async (err, hash) => {
+                    if(err){
                         console.log(err);
-                        res.redirect("/");
-                    })
-                }
-            });
+                    }
+                    else{
+                        const result = await db.query("INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *", [username, hash, email]);
+                        const user = result.rows[0];
+                        req.login(user, (err) => {
+                            console.log(err);
+                            res.redirect("/");
+                        })
+                    }
+                });
+            }
+        }catch(err) {
+            console.log(err);
         }
-    }catch(err) {
-        console.log(err);
     }
 });
 
