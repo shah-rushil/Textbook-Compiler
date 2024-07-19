@@ -24,26 +24,30 @@
       <form action="/filter" method="POST" class="filter-form">
         <img src="assets/filter_image.png" class="filter-img">
         <select id="category" name="category" class="filter-element">
-          <option value="" disabled selected hidden>Category</option>
-          <option value="Any">Any</option>
-          <option value="Physics">Physics</option>
-          <option value="Biology">Biology</option>
-          <option value="Chemistry">Chemistry</option>
+          <option value="" disabled <%= category === 'Category' ? 'selected' : '' %> hidden>Category</option>
+          <option value="Any" <%= category === 'Any' ? 'selected' : '' %>>Any</option>
+<option value="Physics" <%= category === 'Math' ? 'selected' : '' %>>Math</option>
+          <option value="Physics" <%= category === 'Physics' ? 'selected' : '' %>>Physics</option>
+          <option value="Biology" <%= category === 'Biology' ? 'selected' : '' %>>Biology</option>
+          <option value="Chemistry" <%= category === 'Chemistry' ? 'selected' : '' %>>Chemistry</option>
+<option value="EarthScience" <%= category === 'EarthScience' ? 'selected' : '' %>>Earth Science</option>
+<option value="Astronomy" <%= category === 'Astronomy' ? 'selected' : '' %>>Astronomy</option>
+
         </select>
         <select id="level" name="level" class="filter-element">
-          <option value="" disabled selected hidden>Difficulty</option>
-          <option value="Any">Any</option>
-          <option value="Introductory">Introductory</option>
-          <option value="Advanced">Advanced</option>
+          <option value="" disabled <%= level === 'Level' ? 'selected' : '' %> hidden>Difficulty</option>
+          <option value="Any" <%= level === 'any' ? 'selected' : '' %>>Any</option>
+          <option value="Introductory" <%= level === 'Introductory' ? 'selected' : '' %>>Introductory</option>
+          <option value="Advanced" <%= level === 'Advanced' ? 'selected' : '' %>>Advanced</option>
         </select>
         <img src="assets/sorting_image.png" class="sorting-img">
         <select id="sort" name="sort" class="filter-element">
-          <option value="name">Name</option>
-          <option value="rating">Rating</option>
+          <option value="name" <%= sort === 'name' ? 'selected' : '' %>>Name</option>
+          <option value="rating" <%= sort === 'rating' ? 'selected' : '' %>>Rating</option>
         </select>
         <select id="order" name="order" class="filter-element">
-          <option value="ASC">Ascending</option>
-          <option value="DESC">Descending</option>
+          <option value="ASC" <%= order === 'ASC' ? 'selected' : '' %>>Ascending</option>
+          <option value="DESC" <%= order === 'DESC' ? 'selected' : '' %>>Descending</option>
         </select>
         <input type="submit" value="Filter" class="submit-element">
       </form>

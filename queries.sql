@@ -26,5 +26,6 @@ CREATE TABLE ratings(
     username VARCHAR(100),
     textbookid INTEGER,
     stars INTEGER,
-    rating TEXT
+    rating TEXT,
+    anonymous BOOLEAN
 );

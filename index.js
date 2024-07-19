@@ -49,10 +49,10 @@ app.use(passport.session());
 app.get("/", async (req, res) => {
     let textbooks;
     let query;
-    const { category = 'Any', level = 'Any', sort = 'id', order = 'ASC' } = req.query;
+    const { category = 'Category', level = 'Level', sort = 'name', order = 'ASC' } = req.query;
     try{
-        if(category == "Any"){
-            if(level == "Any"){
+        if(category == "Any" || category == 'Category'){
+            if(level == "Any" || level == 'Level'){
                 query = `SELECT * FROM textbooks ORDER BY ${sort} ${order};`
             }
             else{
@@ -60,7 +60,7 @@ app.get("/", async (req, res) => {
             }         
         }
         else{
-            if(level=="Any"){
+            if(level=="Any" || level == 'Level'){
                 query = `SELECT * FROM textbooks WHERE category='${category}' ORDER BY ${sort} ${order};`;
             }
             else{
@@ -70,9 +70,9 @@ app.get("/", async (req, res) => {
         textbooks = await db.query(query);
         if(req.isAuthenticated()){
             const username = req.user.username;
-            res.render("index.ejs", {textbooks: textbooks.rows, username: username});
+            res.render("index.ejs", {textbooks: textbooks.rows, username: username, category: category, level: level, sort: sort, order: order});
         } else {
-            res.render("index.ejs", {textbooks: textbooks.rows});
+            res.render("index.ejs", {textbooks: textbooks.rows, category: category, level: level, sort: sort, order: order});
         }
         
     } catch(error){
@@ -170,9 +170,9 @@ app.get('/reset-password', (req, res) => {
 // POST Requests!
 
 app.post("/filter", (req, res) => {
-    const category = req.body.category || 'Any';
-    const level = req.body.level || 'Any';
-    const sort = req.body.sort || 'rating';
+    const category = req.body.category || 'Category';
+    const level = req.body.level || 'Level';
+    const sort = req.body.sort || 'name';
     const order = req.body.order || 'ASC';
     res.redirect(`/?category=${encodeURIComponent(category)}&level=${encodeURIComponent(level)}&sort=${encodeURIComponent(sort)}&order=${encodeURIComponent(order)}`);
 });
@@ -181,19 +181,25 @@ app.post("/addtextbook", async (req, res) => {
     let name = req.body.name;
     let author = req.body.author;
     let isbn = req.body.isbn;
-    let rating;
-    try{
-        rating = parseInt(req.body.rating);
-    } catch (error){
-        console.log("Please enter an integer (eg. 4) for the rating!");
-    }
-    let rating_description = req.body.rating_description;
     let category = req.body.category;
     let level = req.body.level;
     let summary = req.body.summary;
     let username = req.user.username;
-    let id = await db.query("INSERT INTO textbooks (name, author, isbn, rating, numratings, category, level, summary) VALUES ($1, $2, $3, $4, 1, $5, $6, $7) RETURNING id;", [name, author, isbn, rating, category, level, summary]);
-    await db.query("INSERT INTO ratings (username, textbookid, stars, rating) VALUES ($1, $2, $3, $4)", [username, id.rows[0].id, rating, rating_description]);
+    if(req.body.agree === "yes")
+    {
+        let rating;
+        let rating_description = req.body.rating_description;
+        try{
+            rating = parseInt(req.body.rating);
+        } catch (error){
+            console.log("Please enter an integer (eg. 4) for the rating!");
+        }
+        let id = await db.query("INSERT INTO textbooks (name, author, isbn, rating, numratings, category, level, summary) VALUES ($1, $2, $3, $4, 1, $5, $6, $7) RETURNING id;", [name, author, isbn, rating, category, level, summary]);
+        await db.query("INSERT INTO ratings (username, textbookid, stars, rating) VALUES ($1, $2, $3, $4)", [username, id.rows[0].id, rating, rating_description]);
+    }
+    else{
+        await db.query("INSERT INTO textbooks (name, author, isbn, rating, numratings, category, level, summary) VALUES ($1, $2, $3, 0, 0, $4, $5, $6);", [name, author, isbn, category, level, summary]);
+    }
     res.redirect("/");
 })
 
@@ -201,6 +207,10 @@ app.post("/rating", async (req, res) => {
     let username = req.user.username;
     const textbook = JSON.parse(req.body.textbook);
     let textbookid = textbook.id;
+    let anonymous = false;
+    if(req.body.anonymous === "yes"){
+        anonymous = true;
+    }
     let stars;
     try{
         stars = parseInt(req.body.stars);
@@ -209,7 +219,7 @@ app.post("/rating", async (req, res) => {
     }
     let rating = req.body.rating;
     
-    await db.query("INSERT INTO ratings (username, textbookid, stars, rating) VALUES ($1, $2, $3, $4);", [username, textbookid, stars, rating]);
+    await db.query("INSERT INTO ratings (username, textbookid, stars, rating, anonymous) VALUES ($1, $2, $3, $4, $5);", [username, textbookid, stars, rating, anonymous]);
     const url =  `/books/${textbook.name} by ${textbook.author}`;
     const new_rating = textbook.numratings+1;
     const new_stars = (textbook.rating*textbook.numratings+stars)/new_rating;
@@ -306,28 +316,34 @@ app.post("/deleterating", async (req, res) => {
     res.redirect(url);
 });
 
-app.post("/validateuser", (req, res) => {
+app.post("/validateuser", async (req, res) => {
     const email = req.body.email;
-    const token = jwt.sign({ email: email }, process.env.SESSION_SECRET, { expiresIn: '1h' });
-    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
-    let mailOptions = {
-        from: `"TOTO" <${process.env.EMAIL}>`,
-        to: email,
-        subject: 'Password Reset',
-        text: `Click on the following link to reset your password: ${resetLink}`,
-        html: `<p>Click on the following link to reset your password:</p><a href="${resetLink}">${resetLink}</a>. <p>If you did not choose to 
-        reset your password, please ignore this email.<p>`
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          return console.log('Error:', error);
-        }
-        console.log('Message sent: %s', info.messageId);
-        console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
-    });
-
-    res.send("Please check your email for a reset link!");
+    let submitted = "yes";
+    const result = await db.query("SELECT * FROM users WHERE email=$1", [email]);
+    if(result.rows.length == 0){
+        submitted = "no";
+    }
+    else{
+        const token = jwt.sign({ email: email }, process.env.SESSION_SECRET, { expiresIn: '1h' });
+        const resetLink = `http://localhost:3000/reset-password?token=${token}`;
+        let mailOptions = {
+            from: `"TOTO" <${process.env.EMAIL}>`,
+            to: email,
+            subject: 'Password Reset',
+            text: `Click on the following link to reset your password: ${resetLink}`,
+            html: `<p>Click on the following link to reset your password:</p><a href="${resetLink}">${resetLink}</a>. <p>If you did not choose to 
+            reset your password, please ignore this email.<p>`
+        };
+    
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              return console.log('Error:', error);
+            }
+            console.log('Message sent: %s', info.messageId);
+            console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+        });
+    }
+    res.render("forgotpassword.ejs", {submitted: submitted});
 });
 
 app.post("/reset-password", async (req, res) => {

@@ -246,3 +246,8 @@
 .trash-icon:hover{
     text-decoration: underline;
 }
+
+.anonymous-button{
+    margin-left: 10px;
+    margin-right: 20px;
+}

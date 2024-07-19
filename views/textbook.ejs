@@ -48,6 +48,10 @@
                 <label for="summary" class="rating-add-title">Add a rating!</label>
                 <input type="text" name="stars" class="rating-element" placeholder="Rating eg.(4/5)" required>
                 <textarea id="summary" name="rating" rows="1" cols="30" class="rating-element" placeholder="This book was amazing..." required></textarea>
+                <label class="anonymous-button">
+                    <input type="checkbox" name="anonymous" value="yes">
+                    Anonymous?
+                  </label>
                 <input type="hidden" name="textbook" value="<%= JSON.stringify(textbook) %>">
                 <input type="submit" value="Submit" class="submit-element">
             </form>
@@ -79,7 +83,11 @@
             <div class="book-rating-cell">
                 <div class="book-rating">
                     <h4 class="rating-username">
-                        <%=curr_rating.username%> <br>
+                        <% if(curr_rating.anonymous) {%>
+                            AnonymousUser
+                        <% } else { %>
+                        <%=curr_rating.username%> 
+                        <% } %><br>
                     </h4>
                     <div class="book-rating-stars">
                         <% num_stars = curr_rating.stars %>
