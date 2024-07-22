@@ -18,7 +18,8 @@ CREATE TABLE users(
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE,
     password TEXT,
-    email VARCHAR(100) UNIQUE
+    email VARCHAR(100) UNIQUE,
+    verified BOOLEAN
 );
 
 CREATE TABLE ratings(

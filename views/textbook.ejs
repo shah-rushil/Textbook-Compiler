@@ -2,126 +2,144 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="stylesheet" href="/styles/header.css" />
-  <link rel="stylesheet" href="/styles/textbook.css" />
-  <link rel="stylesheet" href="/styles/footer.css" />
-  <title><%=textbook.name%></title>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/styles/header.css" />
+    <link rel="stylesheet" href="/styles/textbook.css" />
+    <link rel="stylesheet" href="/styles/footer.css" />
+    <title>
+        <%=textbook.name%>
+    </title>
 </head>
 
 <body>
 
     <%- include("partials/header.ejs")%>
 
-    <main class="main-content">
-        <div class="textbook-container">
-            <div class="textbook-pic">
-                <% const imageURL = `https://covers.openlibrary.org/b/isbn/${textbook.isbn}-L.jpg`%>
-                <img src="<%=imageURL%>" class="textbook-image">
-            </div>
-            <div class="textbook-info">
-                <h1 class="textbook-name"><%=textbook.name%></h1>
-                <h3 class="textbook-author"> by <%=textbook.author%> </h3>
-                <% const rating = textbook.rating;%>
-                <div class="rating">
-                    <% for(let j = 1; j < 6; j++){ %>
-                    <% if(j <= Math.floor(rating)) {%>
-                        <span class="filled-star"></span>
-                    <% } else {%>
-                        <span class="star"></span>
-                    <% } %>
-                    <% } %>
-                    <span class="rating-text"><%=rating.toFixed(1)%>/5.0 (<%=textbook.numratings%>)</span>
+        <main class="main-content">
+            <div class="textbook-container">
+                <div class="textbook-pic">
+                    <% const imageURL=`https://covers.openlibrary.org/b/isbn/${textbook.isbn}-L.jpg`%>
+                        <img src="<%=imageURL%>" class="textbook-image">
                 </div>
-                <span style="display: block; margin-bottom: 20px;"></span>
-                <p><%=textbook.summary%></p>
-                <span style="display: block; margin-bottom: 20px;"></span>
-                <% const bookURL = `https://openlibrary.org/isbn/${textbook.isbn}`%>
-                <p>Find more information about cost and availability at <a href="<%=bookURL%>" target="_blank">Open Library</a>.</p>
-            </div>   
-        </div>
-        <% if(locals.username && !submitted) {%>
-        <div class="rating-section">
-            <form action="/rating" method="POST" class="rating-form">
-                <label for="summary" class="rating-add-title">Add a rating!</label>
-                <input type="text" name="stars" class="rating-element" placeholder="Rating eg.(4/5)" required>
-                <textarea id="summary" name="rating" rows="1" cols="30" class="rating-element" placeholder="This book was amazing..." required></textarea>
-                <label class="anonymous-button">
-                    <input type="checkbox" name="anonymous" value="yes">
-                    Anonymous?
-                  </label>
-                <input type="hidden" name="textbook" value="<%= JSON.stringify(textbook) %>">
-                <input type="submit" value="Submit" class="submit-element">
-            </form>
-        </div>
-        <% } %>
-        <h2 class="ratings-title">
-            Reviews
-        </h2>
-        <form action="/filterrating" method="POST" class="rating-title-form">
-            <img src="/assets/sorting_image.png" class="sorting-img">
-            <select id="sort" name="sort" class="rating-element">
-                <option value="rating">Rating</option>
-            </select>
-            <select id="order" name="order" class="filter-element">
-                <option value="ASC">Ascending</option>
-                <option value="DESC">Descending</option>
-            </select>
-            <input type="hidden" name="textbook" value="<%= JSON.stringify(textbook) %>">
-            <input type="submit" value="Submit" class="submit-element">
-        </form>
-        <div class="line-container">
-            <hr class="black-line">
-        </div>
-        <% for(let i = 0; i < ratings.length; i++){ 
-            const curr_rating = ratings[i] %>
-            <div class="line-container">
-                <hr class="black-line">
-            </div>
-            <div class="book-rating-cell">
-                <div class="book-rating">
-                    <h4 class="rating-username">
-                        <% if(curr_rating.anonymous) {%>
-                            AnonymousUser
-                        <% } else { %>
-                        <%=curr_rating.username%> 
-                        <% } %><br>
-                    </h4>
-                    <div class="book-rating-stars">
-                        <% num_stars = curr_rating.stars %>
-                        <% for(let j = 1; j < 6; j++){ %>
-                        <% if(j <= Math.floor(num_stars)) {%>
-                            <span class="book-filled-star"></span>
-                        <% } else {%>
-                            <span class="book-star"></span>
-                        <% } %>
-                        <% } %>
-                        <span class="book-rating-text"><%=num_stars%>/5</span>
-                    </div> <br>
-                    <div class="rating-description">
-                        <%=curr_rating.rating%>
-                    </div>
-                </div>
-                <%if(locals.username && curr_rating.username === username) {%>
-                    <div class="edit-rating">
-                        <%const url = `/edit/${textbook.id}`;%>
-                        <a href="<%=url%>" class="edit-link">&#x270E</a>
-                        <div class="delete-rating">
-                            <form action="/deleterating" method="POST">
-                                <input type="hidden" name="rating" value="<%= JSON.stringify(curr_rating) %>">
-                                <button type="submit" class="delete-button">
-                                    <span class="trash-icon">&#x1F5D1</span>
-                                </button>
-                            </form>
+                <div class="textbook-info">
+                    <h1 class="textbook-name">
+                        <%=textbook.name%>
+                    </h1>
+                    <h3 class="textbook-author"> by <%=textbook.author%>
+                    </h3>
+                    <% const rating=textbook.rating;%>
+                        <div class="rating">
+                            <% for(let j=1; j < 6; j++){ %>
+                                <% if(j <=Math.floor(rating)) {%>
+                                    <span class="filled-star"></span>
+                                    <% } else {%>
+                                        <span class="star"></span>
+                                        <% } %>
+                                            <% } %>
+                                                <span class="rating-text">
+                                                    <%=rating.toFixed(1)%>/5.0 (<%=textbook.numratings%>)
+                                                </span>
                         </div>
+                        <span style="display: block; margin-bottom: 20px;"></span>
+                        <p>
+                            <%=textbook.summary%>
+                        </p>
+                        <span style="display: block; margin-bottom: 20px;"></span>
+                        <% const bookURL=`https://openlibrary.org/isbn/${textbook.isbn}`%>
+                            <p>Find more information about cost and availability at <a href="<%=bookURL%>"
+                                    target="_blank">Open Library</a>.</p>
+                </div>
+            </div>
+            <% if(locals.username && !submitted) {%>
+                <div class="rating-section">
+                    <form action="/rating" method="POST" class="rating-form">
+                        <label for="summary" class="rating-add-title">Add a rating!</label>
+                        <span class="star-rating">
+                            <input type="radio" name="stars" value="1"><i></i>
+                            <input type="radio" name="stars" value="2"><i></i>
+                            <input type="radio" name="stars" value="3"><i></i>
+                            <input type="radio" name="stars" value="4"><i></i>
+                            <input type="radio" name="stars" value="5"><i></i>
+                        </span>
+                        <textarea id="summary" name="rating" rows="1" cols="30" class="rating-element"
+                            placeholder="This book was amazing..." required></textarea>
+                        <label class="anonymous-button">
+                            <input type="checkbox" name="anonymous" value="yes">
+                            Anonymous?
+                        </label>
+                        <input type="hidden" name="textbook" value="<%= JSON.stringify(textbook) %>">
+                        <input type="submit" value="Submit" class="submit-element">
+                    </form>
+                </div>
+                <% } %>
+                    <h2 class="ratings-title">
+                        Reviews
+                    </h2>
+                    <form action="/filterrating" method="POST" class="rating-title-form">
+                        <img src="/assets/sorting_image.png" class="sorting-img">
+                        <select id="sort" name="sort" class="rating-element">
+                            <option value="rating">Rating</option>
+                        </select>
+                        <select id="order" name="order" class="filter-element">
+                            <option value="ASC">Ascending</option>
+                            <option value="DESC">Descending</option>
+                        </select>
+                        <input type="hidden" name="textbook" value="<%= JSON.stringify(textbook) %>">
+                        <input type="submit" value="Submit" class="submit-element">
+                    </form>
+                    <div class="line-container">
+                        <hr class="black-line">
                     </div>
-                <%}%>
-            </div>    
-        <% } %>
-    <br>
-    <br>
-    </main>
-
-<%- include("partials/footer.ejs")%>
+                    <% for(let i=0; i < ratings.length; i++){ const curr_rating=ratings[i] %>
+                        <div class="line-container">
+                            <hr class="black-line">
+                        </div>
+                        <div class="book-rating-cell">
+                            <div class="book-rating">
+                                <h4 class="rating-username">
+                                    <% if(curr_rating.anonymous) {%>
+                                        AnonymousUser
+                                        <% } else { %>
+                                            <%=curr_rating.username%>
+                                                <% } %><br>
+                                </h4>
+                                <div class="book-rating-stars">
+                                    <% num_stars=curr_rating.stars %>
+                                        <% for(let j=1; j < 6; j++){ %>
+                                            <% if(j <=Math.floor(num_stars)) {%>
+                                                <span class="book-filled-star"></span>
+                                                <% } else {%>
+                                                    <span class="book-star"></span>
+                                                    <% } %>
+                                                        <% } %>
+                                                            <span class="book-rating-text">
+                                                                <%=num_stars%>/5
+                                                            </span>
+                                </div> <br>
+                                <div class="rating-description">
+                                    <%=curr_rating.rating%>
+                                </div>
+                            </div>
+                            <%if(locals.username && curr_rating.username===username) {%>
+                                <div class="edit-rating">
+                                    <%const url=`/edit/${textbook.id}`;%>
+                                        <a href="<%=url%>" class="edit-link">&#x270E</a>
+                                        <div class="delete-rating">
+                                            <form action="/deleterating" method="POST">
+                                                <input type="hidden" name="rating"
+                                                    value="<%= JSON.stringify(curr_rating) %>">
+                                                <button type="submit" class="delete-button">
+                                                    <span class="trash-icon">&#x1F5D1</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                </div>
+                                <%}%>
+                        </div>
+                        <% } %>
+                            <br>
+                            <br>
+        </main>
+        <%- include("partials/footer.ejs")%>

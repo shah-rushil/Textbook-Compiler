@@ -22,6 +22,9 @@
                 <input type="text" placeholder="username" name="username" class="form-input" required/>
                 <input type="password" placeholder="password" name="password" class="form-input" required/>
                 <input type="submit" value="create" class="form-submit">
+                <% if(locals.message) {%>
+                  <p class="message" style="color: red; margin-top: 20px;"> <%=message%></p>
+                <% } %>
                 <p class="message">Already registered? <a href="signin">Sign In</a></p>
               </form>
             </div>

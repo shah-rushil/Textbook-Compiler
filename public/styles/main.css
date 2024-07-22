@@ -178,6 +178,19 @@ body, html {
   }
 
   .bottom-text{
+    padding-top: 10px;
     text-align: center;
-    padding-bottom: 40px;
+    padding-bottom: 60px;
+    font-size: 20px;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  }
+
+  .bottom-text a{
+    color: black;
+    font-weight: bold;
+  }
+
+  .bottom-text a:hover{
+    text-decoration: underline;
+    cursor: pointer;
   }
